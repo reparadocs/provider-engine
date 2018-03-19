@@ -1,21 +1,23 @@
+"use strict";
+
 module.exports = {
   // Works the same as async.parallel
-  parallel: function(fns, done) {
-    done = done || function() {};
-    this.map(fns, function(fn, callback) {
+  parallel: function parallel(fns, done) {
+    done = done || function () {};
+    this.map(fns, function (fn, callback) {
       fn(callback);
     }, done);
   },
 
   // Works the same as async.map
-  map: function(items, iterator, done) {
-    done = done || function() {};
+  map: function map(items, iterator, done) {
+    done = done || function () {};
     var results = [];
     var failure = false;
     var expected = items.length;
     var actual = 0;
-    var createIntermediary = function(index) {
-      return function(err, result) {
+    var createIntermediary = function createIntermediary(index) {
+      return function (err, result) {
         // Return if we found a failure anywhere.
         // We can't stop execution of functions since they've already
         // been fired off; but we can prevent excessive handling of callbacks.
@@ -48,8 +50,8 @@ module.exports = {
   },
 
   // Works like async.eachSeries
-  eachSeries: function(items, iterator, done) {
-    done = done || function() {};
+  eachSeries: function eachSeries(items, iterator, done) {
+    done = done || function () {};
     var results = [];
     var failure = false;
     var expected = items.length;
@@ -74,6 +76,6 @@ module.exports = {
       iterator(item, callback);
     };
 
-    next()
+    next();
   }
 };

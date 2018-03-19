@@ -1,10 +1,12 @@
-const inherits = require('util').inherits
-const Transaction = require('ethereumjs-tx')
-const ethUtil = require('ethereumjs-util')
-const Subprovider = require('./subprovider.js')
-const blockTagForPayload = require('../util/rpc-cache-utils').blockTagForPayload
+'use strict';
 
-module.exports = NonceTrackerSubprovider
+var inherits = require('util').inherits;
+var Transaction = require('ethereumjs-tx');
+var ethUtil = require('ethereumjs-util');
+var Subprovider = require('./subprovider.js');
+var blockTagForPayload = require('../util/rpc-cache-utils').blockTagForPayload;
+
+module.exports = NonceTrackerSubprovider;
 
 // handles the following RPC methods:
 //   eth_getTransactionCount (pending only)
@@ -12,72 +14,72 @@ module.exports = NonceTrackerSubprovider
 //   eth_sendRawTransaction
 
 
-inherits(NonceTrackerSubprovider, Subprovider)
+inherits(NonceTrackerSubprovider, Subprovider);
 
-function NonceTrackerSubprovider(opts){
-  const self = this
+function NonceTrackerSubprovider(opts) {
+  var self = this;
 
-  self.nonceCache = {}
+  self.nonceCache = {};
 }
 
-NonceTrackerSubprovider.prototype.handleRequest = function(payload, next, end){
-  const self = this
+NonceTrackerSubprovider.prototype.handleRequest = function (payload, next, end) {
+  var self = this;
 
-  switch(payload.method) {
+  switch (payload.method) {
 
     case 'eth_getTransactionCount':
-      var blockTag = blockTagForPayload(payload)
-      var address = payload.params[0].toLowerCase()
-      var cachedResult = self.nonceCache[address]
+      var blockTag = blockTagForPayload(payload);
+      var address = payload.params[0].toLowerCase();
+      var cachedResult = self.nonceCache[address];
       // only handle requests against the 'pending' blockTag
       if (blockTag === 'pending') {
         // has a result
         if (cachedResult) {
-          end(null, cachedResult)
-        // fallthrough then populate cache
+          end(null, cachedResult);
+          // fallthrough then populate cache
         } else {
-          next(function(err, result, cb){
-            if (err) return cb()
+          next(function (err, result, cb) {
+            if (err) return cb();
             if (self.nonceCache[address] === undefined) {
-              self.nonceCache[address] = result
+              self.nonceCache[address] = result;
             }
-            cb()
-          })
+            cb();
+          });
         }
       } else {
-        next()
+        next();
       }
-      return
+      return;
 
     case 'eth_sendRawTransaction':
       // allow the request to continue normally
-      next(function(err, result, cb){
+      next(function (err, result, cb) {
         // only update local nonce if tx was submitted correctly
-        if (err) return cb()
+        if (err) return cb();
         // parse raw tx
-        var rawTx = payload.params[0]
-        var stripped = ethUtil.stripHexPrefix(rawTx)
-        var rawData = new Buffer(ethUtil.stripHexPrefix(rawTx), 'hex')
-        var tx = new Transaction(new Buffer(ethUtil.stripHexPrefix(rawTx), 'hex'))
+        var rawTx = payload.params[0];
+        var stripped = ethUtil.stripHexPrefix(rawTx);
+        var rawData = new Buffer(ethUtil.stripHexPrefix(rawTx), 'hex');
+        var tx = new Transaction(new Buffer(ethUtil.stripHexPrefix(rawTx), 'hex'));
         // extract address
-        var address = '0x'+tx.getSenderAddress().toString('hex').toLowerCase()
+        var address = '0x' + tx.getSenderAddress().toString('hex').toLowerCase();
         // extract nonce and increment
-        var nonce = ethUtil.bufferToInt(tx.nonce)
-        nonce++
+        var nonce = ethUtil.bufferToInt(tx.nonce);
+        nonce++;
         // hexify and normalize
-        var hexNonce = nonce.toString(16)
-        if (hexNonce.length%2) hexNonce = '0'+hexNonce
-        hexNonce = '0x'+hexNonce
+        var hexNonce = nonce.toString(16);
+        if (hexNonce.length % 2) hexNonce = '0' + hexNonce;
+        hexNonce = '0x' + hexNonce;
         // dont update our record on the nonce until the submit was successful
         // update cache
-        self.nonceCache[address] = hexNonce
-        cb()
-      })
-      return
+        self.nonceCache[address] = hexNonce;
+        cb();
+      });
+      return;
 
     default:
-      next()
-      return
+      next();
+      return;
 
   }
-}
+};

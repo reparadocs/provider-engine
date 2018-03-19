@@ -1,4 +1,6 @@
-module.exports = assert
+"use strict";
+
+module.exports = assert;
 
 function assert(condition, message) {
     if (!condition) {

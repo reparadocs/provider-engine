@@ -1,6 +1,8 @@
-const createPayload = require('./create-payload.js')
+'use strict';
 
-module.exports = estimateGas
+var createPayload = require('./create-payload.js');
+
+module.exports = estimateGas;
 
 /*
 
@@ -8,20 +10,19 @@ This is a work around for https://github.com/ethereum/go-ethereum/issues/2577
 
 */
 
-
 function estimateGas(provider, txParams, cb) {
   provider.sendAsync(createPayload({
     method: 'eth_estimateGas',
     params: [txParams]
-  }), function(err, res){
+  }), function (err, res) {
     if (err) {
       // handle simple value transfer case
       if (err.message === 'no contract code at given address') {
-        return cb(null, '0xcf08')
+        return cb(null, '0xcf08');
       } else {
-        return cb(err)        
+        return cb(err);
       }
     }
-    cb(null, res.result)
-  })
+    cb(null, res.result);
+  });
 }

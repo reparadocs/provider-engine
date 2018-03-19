@@ -1,28 +1,32 @@
-const inherits = require('util').inherits
-const Subprovider = require('./subprovider.js')
+'use strict';
 
-module.exports = FixtureProvider
+var inherits = require('util').inherits;
+var Subprovider = require('./subprovider.js');
 
-inherits(FixtureProvider, Subprovider)
+module.exports = FixtureProvider;
 
-function FixtureProvider(staticResponses){
-  const self = this
-  staticResponses = staticResponses || {}
-  self.staticResponses = staticResponses
+inherits(FixtureProvider, Subprovider);
+
+function FixtureProvider(staticResponses) {
+  var self = this;
+  staticResponses = staticResponses || {};
+  self.staticResponses = staticResponses;
 }
 
-FixtureProvider.prototype.handleRequest = function(payload, next, end){
-  const self = this
-  var staticResponse = self.staticResponses[payload.method]
+FixtureProvider.prototype.handleRequest = function (payload, next, end) {
+  var self = this;
+  var staticResponse = self.staticResponses[payload.method];
   // async function
   if ('function' === typeof staticResponse) {
-    staticResponse(payload, next, end)
-  // static response - null is valid response
+    staticResponse(payload, next, end);
+    // static response - null is valid response
   } else if (staticResponse !== undefined) {
     // return result asynchronously
-    setTimeout(() => end(null, staticResponse))
-  // no prepared response - skip
+    setTimeout(function () {
+      return end(null, staticResponse);
+    });
+    // no prepared response - skip
   } else {
-    next()
+    next();
   }
-}
+};

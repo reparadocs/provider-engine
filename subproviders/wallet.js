@@ -1,24 +1,24 @@
-'use strict'
+'use strict';
 
-const inherits = require('util').inherits
-const HookedWalletEthTxSubprovider = require('./hooked-wallet-ethtx.js')
+var inherits = require('util').inherits;
+var HookedWalletEthTxSubprovider = require('./hooked-wallet-ethtx.js');
 
-module.exports = WalletSubprovider
+module.exports = WalletSubprovider;
 
-inherits(WalletSubprovider, HookedWalletEthTxSubprovider)
+inherits(WalletSubprovider, HookedWalletEthTxSubprovider);
 
-function WalletSubprovider (wallet, opts) {
+function WalletSubprovider(wallet, opts) {
   opts.getAccounts = function (cb) {
-    cb(null, [ wallet.getAddressString() ])
-  }
+    cb(null, [wallet.getAddressString()]);
+  };
 
   opts.getPrivateKey = function (address, cb) {
     if (address !== wallet.getAddressString()) {
-      return cb('Account not found')
+      return cb('Account not found');
     }
 
-    cb(null, wallet.getPrivateKey())
-  }
+    cb(null, wallet.getPrivateKey());
+  };
 
-  WalletSubprovider.super_.call(this, opts)
+  WalletSubprovider.super_.call(this, opts);
 }

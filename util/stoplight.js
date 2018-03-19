@@ -1,34 +1,35 @@
-const EventEmitter = require('events').EventEmitter
-const inherits = require('util').inherits
+'use strict';
 
-module.exports = Stoplight
+var EventEmitter = require('events').EventEmitter;
+var inherits = require('util').inherits;
 
+module.exports = Stoplight;
 
-inherits(Stoplight, EventEmitter)
+inherits(Stoplight, EventEmitter);
 
-function Stoplight(){
-  const self = this
-  EventEmitter.call(self)
-  self.isLocked = true
+function Stoplight() {
+  var self = this;
+  EventEmitter.call(self);
+  self.isLocked = true;
 }
 
-Stoplight.prototype.go = function(){
-  const self = this
-  self.isLocked = false
-  self.emit('unlock')
-}
+Stoplight.prototype.go = function () {
+  var self = this;
+  self.isLocked = false;
+  self.emit('unlock');
+};
 
-Stoplight.prototype.stop = function(){
-  const self = this
-  self.isLocked = true
-  self.emit('lock')
-}
+Stoplight.prototype.stop = function () {
+  var self = this;
+  self.isLocked = true;
+  self.emit('lock');
+};
 
-Stoplight.prototype.await = function(fn){
-  const self = this
+Stoplight.prototype.await = function (fn) {
+  var self = this;
   if (self.isLocked) {
-    self.once('unlock', fn)
+    self.once('unlock', fn);
   } else {
-    setTimeout(fn)
+    setTimeout(fn);
   }
-}
+};
